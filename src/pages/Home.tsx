@@ -57,16 +57,16 @@ function mergeArrays(array1: [string, string | null][], array2: string[]): strin
     return mergedArray;
 }
 
-const mancan_convert = (py_initial: string, 
+const mancan_convert = (py_initial: string,
     py_final: string,
     py_tone: number): [string, string, number] => {
-        let my_initial = py_initial;
-        let my_final = py_final;
-        let my_tone = 0;
-        if (py_tone == 1) my_tone = 1;
-        else if (py_tone == 2) my_tone = 4;
-        return [my_initial, my_final, my_tone];
-    }
+    let my_initial = py_initial;
+    let my_final = py_final;
+    let my_tone = 0;
+    if (py_tone == 1) my_tone = 1;
+    else if (py_tone == 2) my_tone = 4;
+    return [my_initial, my_final, my_tone];
+}
 
 const hanjppy_add_my = (hanjppy: string[]): Pronunciation => {
     let [hanzi, jp, py] = hanjppy;
@@ -104,7 +104,7 @@ const hanjppy_add_my = (hanjppy: string[]): Pronunciation => {
     let py_final = py.slice(i);
 
     let [my_initial, my_final, my_tone] = mancan_convert(py_initial, py_final, py_tone);
-    
+
     return {
         hanzi: hanzi,
         jp_initial: jp_initial,
