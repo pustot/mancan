@@ -48,20 +48,20 @@ export default function App() {
 
     // Prepare items and subpages used in NavBar, SideDrawer and Footer
     const title: I18nText = {
-        "zh-Hans": "浦司图的个人主页",
-        "zh-Hant": "浦司圖的個人主頁",
-        "en": "Pusto's Homepage",
-        "ja": "浦司図のホームページ",
-        "de": "Homepage von Pusto",
-        "ko": "포사도 홈페이지",
-        "ko-Han": "浦司圖 홈페이지",
-        "eo": "Hejmpaĝo de Pusto",
-        "fr": "Page d'Accueil de Pusto",
-        "vi": "Trang cá nhân của Phổ Ti Đồ",
-        "vi-Han": "張個人𧶮浦司圖",
-        "es": "Página personal de Pusto",
-        "tto-bro": "Dnr2Zu DaA Ym3HMeH Tvo2X8aL",
-        "tto": "XoVhaeG D hnCLo LrnKrHL",
+        "zh-Hans": "普通粤",
+        "zh-Hant": "普通粵",
+        "en": "Mancan",
+        "ja": "Mancan",
+        "de": "Mancan",
+        "ko": "Mancan",
+        "ko-Han": "Mancan",
+        "eo": "Mancan",
+        "fr": "Mancan",
+        "vi": "Mancan",
+        "vi-Han": "Mancan",
+        "es": "Mancan",
+        "tto-bro": "Mancan",
+        "tto": "Mancan",
     };
 
     const navItems: NavItem[] = [
@@ -127,7 +127,7 @@ export default function App() {
         },
     ];
 
-    const repoLink = "https://github.com/pustot/react-ts-template";
+    const repoLink = "https://github.com/pustot/mancan";
 
     return (
         <ThemeProvider theme={theme}>
