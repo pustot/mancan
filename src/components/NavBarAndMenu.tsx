@@ -21,26 +21,30 @@ import { Theme } from "@mui/material/styles";
 import "purecss/build/pure.css";
 import * as React from "react";
 import { Link } from "react-router-dom";
-import { ColorModeContext, LangContext } from "../App";
-import { getLocaleText, LangCode } from "../data/I18n";
+import { getLocaleText, I18nText, LangCode, languageCodeToIcon, languageCodeToLocale } from "../utils/I18n";
 import "../styles.scss";
 
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import FeedIcon from "@mui/icons-material/Feed";
-import HomeIcon from "@mui/icons-material/Home";
-import InfoIcon from "@mui/icons-material/Info";
 import LanguageIcon from "@mui/icons-material/Language";
 import MenuIcon from "@mui/icons-material/Menu";
 
+export interface NavItem {
+    name: I18nText;
+    link: string;
+    icon: JSX.Element;
+}
+
 export default function NavBarAndMenu(props: {
     theme: Theme;
+    toggleColorMode: () => void;
+    lang: keyof I18nText;
     langSetter: React.Dispatch<React.SetStateAction<LangCode>>;
+    title: I18nText;
+    navItems: NavItem[];
 }) {
-    const { theme, langSetter } = props;
-    const colorMode = React.useContext(ColorModeContext);
-    const lang = React.useContext(LangContext);
+    const { theme, toggleColorMode, lang, langSetter, title, navItems } = props;
+    // const colorMode = React.useContext(ColorModeContext);
 
     const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
     const [anchorEl, setAnchorEl] = React.useState<(EventTarget & HTMLElement) | undefined>();
@@ -69,135 +73,57 @@ export default function NavBarAndMenu(props: {
     const handleLangChange = (event: SelectChangeEvent) => {
         console.log(event.target);
         langSetter(event.target.value as LangCode);
-        localStorage.setItem("yangchnx/0.1/lang", event.target.value);
+        localStorage.setItem("pustot/0.1/lang", event.target.value);
     };
 
     const handleLangMenuItemClick = (tar: LangCode) => {
         console.log(tar);
         langSetter(tar);
-        localStorage.setItem("yangchnx/0.1/lang", tar);
+        localStorage.setItem("pustot/0.1/lang", tar);
     };
 
     const IndexDrawer = () => (
-        <Box sx={{ width: 250 }} role="presentation" onClick={toggleDrawer(false)} onKeyDown={toggleDrawer(false)}>
+        <Box sx={{ width: 275 }} role="presentation" onClick={toggleDrawer(false)} onKeyDown={toggleDrawer(false)}>
+            <Toolbar>{getLocaleText(title, lang)}</Toolbar>
+            <Divider />
             <List>
-                <ListItem key="nameLogo" disablePadding>
-                    <ListItemButton component={MuiLink} href="https://yangchnx.com">
-                        <ListItemText
-                            inset
-                            primary={getLocaleText(
-                                {
-                                    "en": "Chenxi Yang",
-                                    "zh-Hant": "楊晨曦",
-                                    "zh-Hans": "杨晨曦",
-                                    "tto-bro": "EeRZ T8eHXQea",
-                                    "tto": "hFCmo mAFKRHm",
-                                    "ja": "楊晨曦",
-                                    "de": "Chenxi Yang",
-                                },
-                                lang
-                            )}
-                        />
-                    </ListItemButton>
-                </ListItem>
-                <ListItem key="home" disablePadding>
-                    <ListItemButton component={Link} to="/">
-                        <ListItemIcon>
-                            <HomeIcon />
-                        </ListItemIcon>
-                        {getLocaleText(
-                            {
-                                "en": "Home",
-                                "zh-Hant": "首頁",
-                                "zh-Hans": "首页",
-                                "tto-bro": "6dF2X8am",
-                                "tto": "XoV",
-                                "ja": "ホーム",
-                                "de": "Startseite",
-                            },
-                            lang
-                        )}
-                    </ListItemButton>
-                </ListItem>
-
-                <ListItem key="about" disablePadding>
-                    <ListItemButton component={Link} to="/about">
-                        <ListItemIcon>
-                            <InfoIcon />
-                        </ListItemIcon>
-                        {getLocaleText(
-                            {
-                                "en": "About",
-                                "zh-Hant": "關於",
-                                "zh-Hans": "关于",
-                                "tto-bro": "YQFRHOei",
-                                "tto": "aCmqSqv",
-                                "ja": "私について",
-                                "de": "Über Mich",
-                            },
-                            lang
-                        )}
-                    </ListItemButton>
-                </ListItem>
-
-                <ListItem key="blog" disablePadding>
-                    <ListItemButton component={Link} to="/blog">
-                        <ListItemIcon>
-                            <FeedIcon />
-                        </ListItemIcon>
-                        {getLocaleText(
-                            {
-                                "en": "Blog",
-                                "zh-Hant": "博客",
-                                "zh-Hans": "博客",
-                                "tto-bro": "b8Q7A",
-                                "tto": "bS7Y",
-                                "ja": "ブログ",
-                                "de": "Blog",
-                            },
-                            lang
-                        )}
-                    </ListItemButton>
-                </ListItem>
-
-                <ListItem key="love" disablePadding>
-                    <ListItemButton component={MuiLink} href="https://yangchnx.com/love/">
-                        <ListItemIcon>
-                            <FavoriteIcon />
-                        </ListItemIcon>
-                        {getLocaleText(
-                            {
-                                "en": "Love",
-                                "zh-Hant": "愛",
-                                "zh-Hans": "爱",
-                                "tto-bro": "Oie3",
-                                "tto": "Re",
-                                "ja": "愛",
-                                "de": "Liebe",
-                            },
-                            lang
-                        )}
-                    </ListItemButton>
-                </ListItem>
+                {navItems.map((item: NavItem, idx) => (
+                    <ListItem key={idx} disablePadding>
+                        <ListItemButton
+                            component={item.link.slice(0, 4) == "http" ? MuiLink : Link}
+                            to={item.link}
+                            href={item.link}>
+                            <ListItemIcon>{item.icon}</ListItemIcon>
+                            {getLocaleText(item.name, lang)}
+                        </ListItemButton>
+                    </ListItem>
+                ))}
             </List>
 
             <Divider />
 
             <List>
                 <ListItem key="theme" disablePadding>
-                    <ListItemButton onClick={colorMode.toggleColorMode}>
+                    <ListItemButton onClick={toggleColorMode}>
                         <ListItemIcon>
                             {theme.palette.mode === "dark" ? <Brightness7Icon /> : <Brightness4Icon />}
                         </ListItemIcon>
                         {getLocaleText(
                             {
-                                "en": "Colour Theme",
-                                "zh-Hant": "主題",
                                 "zh-Hans": "主题",
-                                "tto-bro": "Tvo2D8ae",
-                                "tto": "VvaH",
+                                "zh-Hant": "主題",
+                                "en": "Colour Theme",
                                 "ja": "テーマ",
                                 "de": "Farbthema",
+                                "ko": "주제",
+                                "ko-Han": "主題",
+                                "eo": "Kolora Temo",
+                                "fr": "Thème",
+                                "vi": "Chủ đề",
+                                "vi-Han": "主題",
+                                "es": "Tema",
+                                "tto-bro": "Tvo2D8ae",
+                                "tto": "VvaH",
                             },
                             lang
                         )}
@@ -214,16 +140,40 @@ export default function NavBarAndMenu(props: {
                         id="demo-simple-select"
                         value={lang}
                         label="Language"
-                        onChange={handleLangChange}
-                    >
-                        <MenuItem value={"en"}>English</MenuItem>
-                        <MenuItem value={"zh-Hans"}>简体中文</MenuItem>
-                        <MenuItem value={"zh-Hant"}>繁體中文</MenuItem>
-                        <MenuItem value={"ja"}>日本語</MenuItem>
-                        <MenuItem value={"de"}>Deutsch</MenuItem>
-                        <MenuItem value={"tto-bro"}>b8Q7Z2D.</MenuItem>
-                        <MenuItem value={"tto"}>mim</MenuItem>
+                        onChange={handleLangChange}>
+                        {["zh-Hans", "zh-Hant", "en", "ja", "de", "ko", "ko-Han", "eo", "fr", "vi", "vi-Han", "es", "tto", "tto-bro"].map((s, idx) => (
+                            <MenuItem key={idx} value={s as LangCode}>
+                                {languageCodeToIcon(s) + ' ' + languageCodeToLocale(s, s)}
+                            </MenuItem>
+                        ))}
                     </Select>
+                </ListItem>
+
+                <ListItem key="nameLogo" disablePadding>
+                    <ListItemButton component={MuiLink} href="https://pustot.com/">
+                        <ListItemText
+                            inset
+                            primary={getLocaleText(
+                                {
+                                    "zh-Hans": "浦司图",
+                                    "zh-Hant": "浦司圖",
+                                    "en": "Pusto (浦司圖)",
+                                    "ja": "浦司図（ほしと）",
+                                    "de": "Pusto (浦司圖)",
+                                    "ko": "포사도(浦司圖)",
+                                    "ko-Han": "浦司圖(포사도)",
+                                    "eo": "Pusto (浦司圖)",
+                                    "fr": "Pusto (浦司圖)",
+                                    "vi": "Phổ Ti Đồ (浦司圖)",
+                                    "vi-Han": "浦司圖（Phổ Ti Đồ）",
+                                    "es": "Pusto (浦司圖)",
+                                    "tto-bro": "ho2CwD8o (浦司圖)",
+                                    "tto": "hnCLo LrnKrHL (浦司圖)",
+                                },
+                                lang
+                            )}
+                        />
+                    </ListItemButton>
                 </ListItem>
             </List>
         </Box>
@@ -239,191 +189,63 @@ export default function NavBarAndMenu(props: {
                         color="inherit"
                         aria-label="menu"
                         sx={{ mr: 2 }}
-                        onClick={toggleDrawer(true)}
-                    >
+                        onClick={toggleDrawer(true)}>
                         <MenuIcon />
                     </IconButton>
 
                     <Box sx={{ flexGrow: 1, display: "flex", overflow: "auto" }}>
-                        <Button
-                            variant="text"
-                            sx={{
-                                my: 2,
-                                color: "white",
-                                display: "block",
-                                textTransform: "none",
-                                fontSize: 16,
-                            }}
-                            component={Link}
-                            to="/"
-                        >
-                            {getLocaleText(
-                                {
-                                    "en": "Home",
-                                    "zh-Hant": "首頁",
-                                    "zh-Hans": "首页",
-                                    "tto-bro": "6dF2X8am",
-                                    "tto": "XoV",
-                                    "ja": "ホーム",
-                                    "de": "Startseite",
-                                },
-                                lang
-                            )}
-                        </Button>
-                        <Button
-                            variant="text"
-                            sx={{
-                                my: 2,
-                                color: "white",
-                                display: "block",
-                                textTransform: "none",
-                                fontSize: 16,
-                            }}
-                            component={Link}
-                            to="/about"
-                        >
-                            {getLocaleText(
-                                {
-                                    "en": "About",
-                                    "zh-Hant": "關於",
-                                    "zh-Hans": "关于",
-                                    "tto-bro": "YQFRHOei",
-                                    "tto": "aCmqSqv",
-                                    "ja": "私について",
-                                    "de": "Über Mich",
-                                },
-                                lang
-                            )}
-                        </Button>
-                        <Button
-                            variant="text"
-                            sx={{
-                                my: 2,
-                                color: "white",
-                                display: "block",
-                                textTransform: "none",
-                                fontSize: 16,
-                            }}
-                            component={Link}
-                            to="/blog"
-                        >
-                            {getLocaleText(
-                                {
-                                    "en": "Blog",
-                                    "zh-Hant": "博客",
-                                    "zh-Hans": "博客",
-                                    "tto-bro": "b8Q7A",
-                                    "tto": "bS7Y",
-                                    "ja": "ブログ",
-                                    "de": "Blog",
-                                },
-                                lang
-                            )}
-                        </Button>
-                        <Button
-                            variant="text"
-                            sx={{
-                                my: 2,
-                                color: "white",
-                                display: "block",
-                                textTransform: "none",
-                                fontSize: 16,
-                            }}
-                            component={MuiLink}
-                            href="https://yangchnx.com/love/"
-                        >
-                            {getLocaleText(
-                                {
-                                    "en": "Love",
-                                    "zh-Hant": "愛",
-                                    "zh-Hans": "爱",
-                                    "tto-bro": "Oie3",
-                                    "tto": "Re",
-                                    "ja": "愛",
-                                    "de": "Liebe",
-                                },
-                                lang
-                            )}
-                        </Button>
+                        {navItems.map((item: NavItem, idx) => (
+                            <Button
+                                key={idx}
+                                variant="text"
+                                sx={{
+                                    color: "white",
+                                    display: "block",
+                                    textTransform: "none",
+                                    fontSize: 16,
+                                    margin: 1,
+                                    flexShrink: 0,
+                                }}
+                                component={item.link.slice(0, 4) == "http" ? MuiLink : Link}
+                                to={item.link}
+                                href={item.link}>
+                                {getLocaleText(item.name, lang)}
+                            </Button>
+                        ))}
                     </Box>
 
                     <Box
                         sx={{
                             flexGrow: 0,
-                            display: { xs: "block", md: "flex" },
-                            overflow: "hidden",
-                        }}
-                    >
-                        <IconButton onClick={colorMode.toggleColorMode} color="inherit">
+                            display: "flex",
+                        }}>
+                        <IconButton onClick={toggleColorMode} color="inherit">
                             {theme.palette.mode === "dark" ? <Brightness7Icon /> : <Brightness4Icon />}
                         </IconButton>
                         <IconButton
                             onClick={handleLangMenuClick}
                             size="small"
-                            sx={{ ml: 2 }}
-                            aria-controls={isLangMenuOpen ? "account-menu" : undefined}
+                            aria-controls={isLangMenuOpen ? "language-menu" : undefined}
                             aria-haspopup="true"
                             aria-expanded={isLangMenuOpen ? "true" : undefined}
-                            color="inherit"
-                        >
+                            color="inherit">
                             <LanguageIcon />
                         </IconButton>
                         <Menu
                             anchorEl={anchorEl}
-                            id="account-menu"
+                            id="language-menu"
                             open={isLangMenuOpen}
                             onClose={handleLangMenuClose}
-                            onClick={handleLangMenuClose}
-                        >
-                            <MenuItem
-                                onClick={() => {
-                                    handleLangMenuItemClick("en");
-                                }}
-                            >
-                                English
-                            </MenuItem>
-                            <MenuItem
-                                onClick={() => {
-                                    handleLangMenuItemClick("zh-Hans");
-                                }}
-                            >
-                                简体中文
-                            </MenuItem>
-                            <MenuItem
-                                onClick={() => {
-                                    handleLangMenuItemClick("zh-Hant");
-                                }}
-                            >
-                                繁體中文
-                            </MenuItem>
-                            <MenuItem
-                                onClick={() => {
-                                    handleLangMenuItemClick("ja");
-                                }}
-                            >
-                                日本語
-                            </MenuItem>
-                            <MenuItem
-                                onClick={() => {
-                                    handleLangMenuItemClick("de");
-                                }}
-                            >
-                                Deutsch
-                            </MenuItem>
-                            <MenuItem
-                                onClick={() => {
-                                    handleLangMenuItemClick("tto-bro");
-                                }}
-                            >
-                                b8Q7Z2D.
-                            </MenuItem>
-                            <MenuItem
-                                onClick={() => {
-                                    handleLangMenuItemClick("tto");
-                                }}
-                            >
-                                mim
-                            </MenuItem>
+                            onClick={handleLangMenuClose}>
+                            {["zh-Hans", "zh-Hant", "en", "ja", "de", "ko", "ko-Han", "eo", "fr", "vi", "vi-Han", "es", "tto", "tto-bro"].map((s, idx) => (
+                                <MenuItem
+                                    key={idx}
+                                    onClick={() => {
+                                        handleLangMenuItemClick(s as LangCode);
+                                    }}>
+                                    {languageCodeToIcon(s) + ' ' + languageCodeToLocale(s, s)}
+                                </MenuItem>
+                            ))}
                         </Menu>
                     </Box>
                 </Toolbar>

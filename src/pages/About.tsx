@@ -3,7 +3,7 @@ import "purecss/build/pure.css";
 import * as React from "react";
 import { useEffect, useState } from "react";
 import MyMuiMarkdown from "../components/MyMuiMarkdown";
-import { I18nText } from "../data/I18n";
+import { I18nText } from "../utils/I18n";
 import "../styles.scss";
 
 export default function About(props: { lang: keyof I18nText }) {
