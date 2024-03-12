@@ -31,7 +31,8 @@ import { getLocaleText, I18nText } from "../utils/I18n";
 import { mancan_convert, mancan_options } from "../utils/mancan_convert";
 
 interface Pronunciation {
-    hanzi: string;
+    isHanzi: boolean;
+    text: string;
     py_initial: string;
     py_final: string;
     py_tone: string;
@@ -64,6 +65,14 @@ function mergeArrays(array1: [string, string | null][], array2: string[]): strin
                 temp.push(array2[i]);
                 mergedArray.push(temp);
             }
+        } else {
+            // 表明不是汉字，返回空串以供后续
+            temp.push(array1[i][0]);
+            temp.push("");
+            if (i < array2.length) {
+                temp.push("");
+                mergedArray.push(temp);
+            }
         }
     }
     return mergedArray;
@@ -90,6 +99,19 @@ export default function Home(props: { lang: keyof I18nText }) {
 
     const hanjppy_add_my = (hanjppy: string[]): Pronunciation => {
         let [hanzi, jp, py] = hanjppy;
+        if (jp === "" && py === "") return {
+            isHanzi: false,
+            text: hanzi,
+            jp_initial: "",
+            jp_final: "",
+            jp_tone: "",
+            py_initial: "",
+            py_final: "",
+            py_tone: "",
+            my_initial: "",
+            my_final: "",
+            my_tone: ""
+        };
 
         // 拆解 jyut ping
         let jp_tone = 0;
@@ -132,7 +154,8 @@ export default function Home(props: { lang: keyof I18nText }) {
         );
 
         return {
-            hanzi: hanzi,
+            isHanzi: true,
+            text: hanzi,
             jp_initial: jp_initial,
             jp_final: jp_final,
             jp_tone: "" + jp_tone,
@@ -175,14 +198,16 @@ export default function Home(props: { lang: keyof I18nText }) {
         let [b, g, r, sum] = [0, 0, 0, 0];
         // The same logic as color assigning
         translations.forEach((pronunciation) => {
-            (pronunciation.jp_initial === pronunciation.my_initial && pronunciation.jp_final === pronunciation.my_final && pronunciation.jp_tone === pronunciation.my_tone) ?
-                b++ :
-                (pronunciation.my_initial.split('/').some(part => part === pronunciation.jp_initial)
-                    && pronunciation.my_final.split('/').some(part => part === pronunciation.jp_final)
-                    && pronunciation.my_tone.split('/').some(part => part === pronunciation.jp_tone)) ?
-                    g++ :
-                    r++;
-            sum++;
+            if (pronunciation.isHanzi) {
+                (pronunciation.jp_initial === pronunciation.my_initial && pronunciation.jp_final === pronunciation.my_final && pronunciation.jp_tone === pronunciation.my_tone) ?
+                    b++ :
+                    (pronunciation.my_initial.split('/').some(part => part === pronunciation.jp_initial)
+                        && pronunciation.my_final.split('/').some(part => part === pronunciation.jp_final)
+                        && pronunciation.my_tone.split('/').some(part => part === pronunciation.jp_tone)) ?
+                        g++ :
+                        r++;
+                sum++;
+            }
         });
         setBgrColorCnt([b, g, r, sum]);
     };
@@ -230,10 +255,30 @@ export default function Home(props: { lang: keyof I18nText }) {
     const handleReplace = () => {
         switch (selectedReplaceOption) {
             case '2500':
-                handleInput2500();
+                setInput(hansPrim2500);
                 break;
             case '3500':
-                handleInput3500();
+                setInput(hansPhonOrdered3500);
+                break;
+            case 'qianziwen':
+                fetch('https://pustot.github.io/public/corpus/Qianziwen.txt')
+                    .then(response => response.text())
+                    .then(data => {
+                        setInput(data);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching text:', error);
+                    });
+                break;
+            case 'wiki-example':
+                fetch('https://pustot.github.io/public/corpus/WikiExample.txt')
+                    .then(response => response.text())
+                    .then(data => {
+                        setInput(data);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching text:', error);
+                    });
                 break;
             // Add more cases as needed
             default:
@@ -241,12 +286,6 @@ export default function Home(props: { lang: keyof I18nText }) {
                 break;
         }
     };
-    const handleInput2500 = () => {
-        setInput(hansPrim2500);
-    }
-    const handleInput3500 = () => {
-        setInput(hansPhonOrdered3500);
-    }
     const handleInputClear = () => {
         setInput("");
         setResult([]);
@@ -375,6 +414,8 @@ export default function Home(props: { lang: keyof I18nText }) {
                             {/* <MenuItem value="">请选择</MenuItem> */}
                             <MenuItem value="2500">替换为2500常用字（笔画序）</MenuItem>
                             <MenuItem value="3500">替换为3500常用字（拼音序）</MenuItem>
+                            <MenuItem value="qianziwen">替换为千字文</MenuItem>
+                            <MenuItem value="wiki-example">替换为维基示例</MenuItem>
                             {/* Add more menu items as needed */}
                         </Select>
                     </FormControl>
@@ -384,6 +425,9 @@ export default function Home(props: { lang: keyof I18nText }) {
                     <Button variant="contained" onClick={handleSubmit}>
                         转粤
                     </Button>
+                    <Button variant="contained" onClick={handleInputClear}>
+                        清除文本
+                    </Button>
                 </Box>
 
                 <TextField label="输入汉字" variant="outlined" value={input}
@@ -392,57 +436,62 @@ export default function Home(props: { lang: keyof I18nText }) {
                 <Button variant="contained" onClick={handleSubmit}>
                     转换
                 </Button>
-
                 <Button variant="contained" onClick={handleInputClear}>
                     清除文本
                 </Button>
 
                 <ClickAwayListener onClickAway={handleTooltipClose}>
-                    <Box mt={2} sx={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                    <Box mt={2} sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
                         {result.map((pronunciation, index) => (
-                            <Tooltip
-                                key={index}
-                                PopperProps={{
-                                    disablePortal: true,
-                                }}
-                                onClose={handleTooltipClose}
-                                open={openTooltipIndex === index}
-                                disableFocusListener
-                                disableHoverListener
-                                disableTouchListener
-                                title={
-                                    <>
-                                        <Typography>普通话: {pronunciation.py_initial + pronunciation.py_final + pronunciation.py_tone}</Typography>
-                                        <Typography>粤语: {pronunciation.jp_initial + pronunciation.jp_final + pronunciation.jp_tone}</Typography>
-                                        <Typography>普推粤: {pronunciation.my_initial + " " + pronunciation.my_final + " " + pronunciation.my_tone}</Typography>
-                                    </>
-                                }
-                            >
-                                <Box sx={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', mr: 2 }}
-                                    onMouseEnter={() => handleTooltipOpen(index)}
-                                    onMouseLeave={handleTooltipClose}
-                                    onClick={() => handleTooltipOpen(index)}
-                                >
-                                    <Typography sx={{ fontSize: '1em', lineHeight: '1' }}>
-                                        {pronunciation.jp_initial !== pronunciation.my_initial ?
-                                            (pronunciation.my_initial.split('/').some(part => part === pronunciation.jp_initial) ?
-                                                <GreenHighlight>{pronunciation.jp_initial}</GreenHighlight> :
-                                                <Highlight>{pronunciation.jp_initial}</Highlight>) :
-                                            pronunciation.jp_initial}
-                                        {pronunciation.jp_final !== pronunciation.my_final ?
-                                            (pronunciation.my_final.split('/').some(part => part === pronunciation.jp_final) ?
-                                                <GreenHighlight>{pronunciation.jp_final}</GreenHighlight> :
-                                                <Highlight>{pronunciation.jp_final}</Highlight>) :
-                                            pronunciation.jp_final}
-                                        {pronunciation.jp_tone !== pronunciation.my_tone ?
-                                            (pronunciation.my_tone.split('/').some(part => part === pronunciation.jp_tone) ?
-                                                <GreenHighlight>{pronunciation.jp_tone}</GreenHighlight> :
-                                                <Highlight>{pronunciation.jp_tone}</Highlight>) :
-                                            pronunciation.jp_tone}
-                                    </Typography>
-                                    <Typography sx={{ lineHeight: '1.5' }} variant="h6">{pronunciation.hanzi}</Typography>
-                                </Box>
-                            </Tooltip>
+                            pronunciation.text === "\n" ? <div style={{ width: '100%', height: '0' }} /> :
+                                pronunciation.isHanzi ?
+                                    <Tooltip
+                                        key={index}
+                                        PopperProps={{
+                                            disablePortal: true,
+                                        }}
+                                        onClose={handleTooltipClose}
+                                        open={openTooltipIndex === index}
+                                        disableFocusListener
+                                        disableHoverListener
+                                        disableTouchListener
+                                        title={
+                                            <>
+                                                <Typography>普通话: {pronunciation.py_initial + pronunciation.py_final + pronunciation.py_tone}</Typography>
+                                                <Typography>粤语: {pronunciation.jp_initial + pronunciation.jp_final + pronunciation.jp_tone}</Typography>
+                                                <Typography>普推粤: {pronunciation.my_initial + " " + pronunciation.my_final + " " + pronunciation.my_tone}</Typography>
+                                            </>
+                                        }
+                                    >
+                                        <Box sx={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', mr: 2 }}
+                                            onMouseEnter={() => handleTooltipOpen(index)}
+                                            onMouseLeave={handleTooltipClose}
+                                            onClick={() => handleTooltipOpen(index)}
+                                        >
+                                            <Typography sx={{ fontSize: '1em', lineHeight: '1' }}>
+                                                {pronunciation.jp_initial !== pronunciation.my_initial ?
+                                                    (pronunciation.my_initial.split('/').some(part => part === pronunciation.jp_initial) ?
+                                                        <GreenHighlight>{pronunciation.jp_initial}</GreenHighlight> :
+                                                        <Highlight>{pronunciation.jp_initial}</Highlight>) :
+                                                    pronunciation.jp_initial}
+                                                {pronunciation.jp_final !== pronunciation.my_final ?
+                                                    (pronunciation.my_final.split('/').some(part => part === pronunciation.jp_final) ?
+                                                        <GreenHighlight>{pronunciation.jp_final}</GreenHighlight> :
+                                                        <Highlight>{pronunciation.jp_final}</Highlight>) :
+                                                    pronunciation.jp_final}
+                                                {pronunciation.jp_tone !== pronunciation.my_tone ?
+                                                    (pronunciation.my_tone.split('/').some(part => part === pronunciation.jp_tone) ?
+                                                        <GreenHighlight>{pronunciation.jp_tone}</GreenHighlight> :
+                                                        <Highlight>{pronunciation.jp_tone}</Highlight>) :
+                                                    pronunciation.jp_tone}
+                                            </Typography>
+                                            <Typography sx={{ lineHeight: '1.5' }} variant="h6">{pronunciation.text}</Typography>
+                                        </Box>
+                                    </Tooltip>
+                                    :
+                                    <Box sx={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        <Typography sx={{ lineHeight: '1.5', whiteSpace: 'pre-line' }} variant="h6">{pronunciation.text}</Typography>
+                                    </Box>
                         ))}
                     </Box>
                 </ClickAwayListener>
