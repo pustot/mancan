@@ -36,7 +36,8 @@ export const mancan_options = [
     { label: 'k➡️f/h', value: 'k-fh' },
     { label: 'h➡️h/w/f', value: 'h-hwf' },
     { label: 'q➡️c/k/h', value: 'q-ckh' },
-    { label: 'w➡️m/w', value: 'w-mw' },
+    { label: 'w➡️m/w（明微）', value: 'w-mw' },
+    { label: '零声母➡️零/ng（疑母）', value: '0-0ng' },
 
     // 韵母一对多
     { label: 'e➡️o/e', value: 'e-oe' },
@@ -65,8 +66,13 @@ export const mancan_convert = (
     // simple mapping
     let my_initial = simple_mapper_initial.get(py_initial) || "";
     let my_final = simple_mapper_final.get(py_final) || "";
+    // 简单附加规则：舌尖i为i
     if (["z", "c", "s", "zh", "ch", "sh"].includes(py_initial) && py_final === "i") {
         my_final = "i";
+    }
+    // 简单附加规则：r变为j之后，拼音韵母当视为i开头所以ran➡️im/in
+    if (my_initial === "j" && py_final !== "i") {
+        my_final = simple_mapper_final.get("i" + py_final) || my_final;
     }
     let my_tone = "0";
     if (py_tone == "1") my_tone = "1";
@@ -93,6 +99,9 @@ export const mancan_convert = (
     if (selectedOptions.includes('w-mw') && py[0] == "w") {
         my_initial = "m/w";
     }
+    if (selectedOptions.includes('0-0ng') && ["", "w", "y"].includes(py_initial)) {
+        my_initial += "//ng";
+    }
     // 韵母一对多
     if (selectedOptions.includes('e-oe') && py_final === "e") {
         my_final = "o/e";
@@ -112,7 +121,7 @@ export const mancan_convert = (
     if (selectedOptions.includes('ei-n') && py_final === "ei") {
         my_final = "ei/ui";
     }
-    if (selectedOptions.includes('ao-n') && py_final === "ao") {
+    if (selectedOptions.includes('ao-n') && !my_final && py_final === "ao") {
         my_final = "aau/ou";
     }
     if (selectedOptions.includes('uan-n') && py_final === "uan") {
@@ -124,7 +133,7 @@ export const mancan_convert = (
     if (selectedOptions.includes('yuan-n') && py_final === "yuan") {
         my_final = "yun/un";
     }
-    if (selectedOptions.includes('ang-n') && py_final === "ang") {
+    if (selectedOptions.includes('ang-n') && !my_final && py_final === "ang") {
         my_final = "ong/oeng";
     }
     if (selectedOptions.includes('eng-n') && py_final === "eng") {

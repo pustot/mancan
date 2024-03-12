@@ -370,6 +370,7 @@ export default function Home(props: { lang: keyof I18nText }) {
                                     <>
                                         <Typography>普通话: {pronunciation.py_initial + pronunciation.py_final + pronunciation.py_tone}</Typography>
                                         <Typography>粤语: {pronunciation.jp_initial + pronunciation.jp_final + pronunciation.jp_tone}</Typography>
+                                        <Typography>普推粤: {pronunciation.my_initial + " " + pronunciation.my_final + " " + pronunciation.my_tone}</Typography>
                                     </>
                                 }
                             >
