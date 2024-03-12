@@ -1,6 +1,6 @@
 {
   "background_color": "#ffffff",
-  "description": "Pusto T",
+  "description": "Help Mandarin speakers learn Cantonese by highlighting which parts of each Hanzi can be converted directly from Putonghua with simple rules and which parts not.",
   "display": "fullscreen",
   "icons": [
     {
@@ -24,7 +24,7 @@
       "type": "image/png"
     }
   ],
-  "name": "Pusto",
-  "short_name": "Pusto",
+  "name": "Mancan",
+  "short_name": "Mancan",
   "start_url": "."
 }
