@@ -2,7 +2,7 @@
 const simple_mapper_initial = new Map([
     ["b", "b"], ["p", "p"], ["m", "m"], ["f", "f"],
     ["d", "d"], ["t", "t"], ["n", "n"], ["l", "l"],
-    ["g", "g"], ["k", "k"], ["h", "h"],
+    ["g", "g"], // ["k", "k"], ["h", "h"],
     // ["j", ""], ["q", ""], ["x", ""],
     ["zh", "z"], ["ch", "c"], ["sh", "s"], ["r", "j"],
     ["z", "z"], ["c", "c"], ["s", "s"],
@@ -31,6 +31,15 @@ export const mancan_options = [
     { label: '阴阳上阴阳去', value: 'yy' },
     // 可以根据需要添加更多选项
     { label: '入声字', value: 'rs' },
+    
+    // 声母一对多
+    { label: 'k➡️f/h', value: 'k-fh' },
+    { label: 'h➡️h/w/f', value: 'h-hwf' },
+    { label: 'q➡️c/k/h', value: 'q-ckh' },
+    { label: 'w➡️m/w', value: 'w-mw' },
+
+    // 韵母一对多
+    { label: 'e➡️o/e', value: 'e-oe' },
 ];
 
 export const mancan_convert = (
@@ -54,6 +63,23 @@ export const mancan_convert = (
     if (my_initial === "k" && py.substring(0, 2) === "ku") my_initial = "kw";
 
     // Options
+    // 声母一对多
+    if (selectedOptions.includes('k-fh') && !my_initial && py_initial === "k") {
+        my_initial = "f/h";
+    }
+    if (selectedOptions.includes('h-hwf') && !my_initial && py_initial === "h") {
+        my_initial = "h/w/f";
+    }
+    if (selectedOptions.includes('q-ckh') && !my_initial && py_initial === "q") {
+        my_initial = "c/k/h";
+    }
+    if (selectedOptions.includes('w-mw') && py[0] == "w") {
+        my_initial = "m/w";
+    }
+    // 韵母一对多
+    if (selectedOptions.includes('e-oe') && !my_final && py_final === "e") {
+        my_initial = "o/e";
+    }
 
     // 最基本的逻辑，放最下面
     // 尖团音
