@@ -64,6 +64,9 @@ export const mancan_convert = (
     // simple mapping
     let my_initial = simple_mapper_initial.get(py_initial) || "";
     let my_final = simple_mapper_final.get(py_final) || "";
+    if (["z", "c", "s", "zh", "ch", "sh"].includes(py_initial) && py_final === "i") {
+        my_final = "i";
+    }
     let my_tone = "0";
     if (py_tone == "1") my_tone = "1";
     else if (py_tone == "2") my_tone = "4";
@@ -145,6 +148,9 @@ export const mancan_convert = (
         if (py_tone == "3") my_tone = "2/5";
         if (py_tone == "4") my_tone = "3/6";
     }
-    console.log(jt_mapper.get(py_initial))
+
+    // gwu -> gu, kwu -> ku
+    if (my_initial === "gw" && (my_final[0] === "u" || my_final[0] === "y")) my_initial = "g";
+    if (my_initial === "kw" && (my_final[0] === "u" || my_final[0] === "y")) my_initial = "k";
     return [my_initial, my_final, my_tone];
 }
