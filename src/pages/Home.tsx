@@ -70,6 +70,8 @@ export default function Home(props: { lang: keyof I18nText }) {
     const [input, setInput] = React.useState<string>("廣州話");
     const [result, setResult] = React.useState<Pronunciation[]>([]);
     const [selectedOptions, setSelectedOptions] = React.useState<string[]>([]);
+    // count how many hanzis are of blank, green and red colors, and sum
+    const [bgrColorCnt, setBgrColorCnt] = React.useState<[number, number, number, number]>([0, 0, 0, 0]);
 
     const hanjppy_add_my = (hanjppy: string[]): Pronunciation => {
         let [hanzi, jp, py] = hanjppy;
@@ -150,10 +152,22 @@ export default function Home(props: { lang: keyof I18nText }) {
         setInput(e.target.value);
     };
 
+    // 点击「转换」按钮
     const handleSubmit = () => {
         const characters = input;
         const translations = translateMandarinToCantonese(characters);
         setResult(translations);
+        let [b, g, r, sum] = [0, 0, 0, 0];
+        // The same logic as color assigning
+        translations.forEach((pronunciation) => {
+            pronunciation.jp_initial !== pronunciation.my_initial ?
+                (pronunciation.my_initial.split('/').some(part => part === pronunciation.jp_initial) ?
+                    g++ :
+                    r++) :
+                b++;
+            sum++;
+        });
+        setBgrColorCnt([b, g, r, sum]);
     };
 
     const [openTooltipIndex, setOpenTooltipIndex] = React.useState<number | null>(null);
@@ -236,7 +250,7 @@ export default function Home(props: { lang: keyof I18nText }) {
             </Typography>
             <Box mx={2}>
                 <Button onClick={handleDialogueOpen} variant="contained" color="primary">
-                    普转粤一对一规则
+                    关于普转粤一对一规则
                 </Button>
                 <Dialog open={dialogueOpen} onClose={handleDialogueClose}>
                     <DialogTitle>普转粤一对一规则</DialogTitle>
@@ -356,6 +370,34 @@ export default function Home(props: { lang: keyof I18nText }) {
                         ))}
                     </Box>
                 </ClickAwayListener>
+
+                <Typography variant="body1" m={1}>
+                    {getLocaleText(
+                        {
+                            "zh-Hans": "各规则字数统计：适用简单规则者：",
+                        },
+                        lang
+                    )}
+                    {bgrColorCnt[0] + " (" + (bgrColorCnt[3] == 0 ? 0 : bgrColorCnt[0] / bgrColorCnt[3] * 100) + "%) "}
+                    {getLocaleText(
+                        {
+                            "zh-Hans": "，适用简单+绿色规则者：",
+                        },
+                        lang
+                    )}
+                    <GreenHighlight>
+                        {bgrColorCnt[0] + bgrColorCnt[1] + " (" + (bgrColorCnt[3] == 0 ? 0 : (bgrColorCnt[0] + bgrColorCnt[1]) / bgrColorCnt[3] * 100) + "%) "}
+                    </GreenHighlight>
+                    {getLocaleText(
+                        {
+                            "zh-Hans": "，不适用以上规则者（有红色部分者）：",
+                        },
+                        lang
+                    )}
+                    <Highlight>
+                        {bgrColorCnt[2] + " (" + (bgrColorCnt[3] == 0 ? 0 : (bgrColorCnt[2]) / bgrColorCnt[3] * 100) + "%) "}
+                    </Highlight>
+                </Typography>
 
 
             </Box>
