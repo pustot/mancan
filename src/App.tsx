@@ -87,6 +87,39 @@ export default function App() {
         },
         {
             name: {
+                "eo": "HanPoli",
+                "zh-Hant": "漢諸",
+                "zh-Hans": "汉诸",
+                "en": "HanPoly",
+                "tto-bro": "XrH3Tei",
+                "tto": "XrHhoSe",
+            },
+            link: "https://hanpoly.pustot.com/",
+            icon: <img style={{ width: '24px', height: 'auto' }} src={"https://pustot.github.io/public/index/pic/logo-hanpoly.webp"} alt="My Image" />,
+        },
+        {
+            name: {
+                "eo": "Kantona Memkartaro",
+                "zh-Hant": "粵語字卡",
+                "zh-Hans": "粤语字卡",
+                "en": "Cantonese Flashcard",
+                "tto": "vmv ARD",
+            },
+            link: "https://cantonese-flashcard.pustot.com/",
+            icon: <img style={{ width: '24px', height: 'auto' }} src={"https://pustot.github.io/public/index/pic/logo-cantonese-flashcard.webp"} alt="My Image" />,
+        },
+        {
+            name: {
+                "eo": "Vortaro Konsulto",
+                "zh-Hant": "查詞",
+                "zh-Hans": "查词",
+                "en": "Word Lookup",
+            },
+            link: "https://word-lookuper.pustot.com/",
+            icon: <img style={{ width: '24px', height: 'auto' }} src={"https://pustot.github.io/public/index/pic/logo-word-lookuper.webp"} alt="My Image" />,
+        },
+        {
+            name: {
                 "zh-Hant": "關於",
                 "zh-Hans": "关于",
                 "en": "About",
