@@ -167,11 +167,13 @@ export default function Home(props: { lang: keyof I18nText }) {
         let [b, g, r, sum] = [0, 0, 0, 0];
         // The same logic as color assigning
         translations.forEach((pronunciation) => {
-            pronunciation.jp_initial !== pronunciation.my_initial ?
-                (pronunciation.my_initial.split('/').some(part => part === pronunciation.jp_initial) ?
+            (pronunciation.jp_initial === pronunciation.my_initial && pronunciation.jp_final === pronunciation.my_final && pronunciation.jp_tone === pronunciation.my_tone) ?
+            b++ :
+                (pronunciation.my_initial.split('/').some(part => part === pronunciation.jp_initial)
+                    && pronunciation.my_final.split('/').some(part => part === pronunciation.jp_final)
+                        && pronunciation.my_tone.split('/').some(part => part === pronunciation.jp_tone)) ?
                     g++ :
-                    r++) :
-                b++;
+                    r++;
             sum++;
         });
         setBgrColorCnt([b, g, r, sum]);
