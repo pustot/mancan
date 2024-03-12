@@ -43,14 +43,15 @@ export const mancan_options = [
     { label: 'i（非舌尖ɿʅ）➡️ei/ai/ik', value: 'i-eiaiik' },
     { label: 'u➡️u/ou/yu/uk', value: 'u-uouyuuk' },
     { label: 'yu➡️yu/eoi/uk', value: 'yu-n' },
-    { label: 'ai➡️aai/oi', value: 'ai-n' },
+    { label: 'ai➡️aai/oi（泰咍）', value: 'ai-n' },
     { label: 'ei➡️ei/ui', value: 'ei-n' },
     { label: 'ao➡️aau/ou', value: 'ao-n' },
     { label: 'uan➡️yun/un', value: 'uan-n' },
+    { label: 'uan➡️yun/un/aan（关官）', value: 'uan-n-aan' },
     { label: 'yuan➡️yun/un', value: 'yuan-n' },
     { label: 'ang➡️ong/oeng', value: 'ang-n' },
     { label: 'eng➡️ang/ing', value: 'eng-n' },
-    { label: 'ing➡️ing/eng', value: 'ing-n' },
+    { label: 'ing➡️ing/eng（文ing白eng）', value: 'ing-n' },
 ];
 
 export const mancan_convert = (
@@ -116,6 +117,9 @@ export const mancan_convert = (
     }
     if (selectedOptions.includes('uan-n') && py_final === "uan") {
         my_final = "yun/un";
+    }
+    if (selectedOptions.includes('uan-n-aan') && py_final === "uan") {
+        my_final = "yun/un/aan";
     }
     if (selectedOptions.includes('yuan-n') && py_final === "yuan") {
         my_final = "yun/un";

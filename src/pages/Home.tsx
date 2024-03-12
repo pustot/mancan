@@ -264,7 +264,7 @@ export default function Home(props: { lang: keyof I18nText }) {
             <Typography variant="body1" m={1}>
                 {getLocaleText(
                     {
-                        "zh-Hans": "符合以下最简单一对一规则者，该部分拼音显示为黑色（暗色模式为白色）。",
+                        "zh-Hans": "符合以下最简单一对一规则者，该部分拼音显示为普通文本颜色（亮色模式为黑色，暗色模式为白色）。",
                     },
                     lang
                 )}
@@ -405,14 +405,14 @@ export default function Home(props: { lang: keyof I18nText }) {
                 <Typography variant="body1" m={1}>
                     {getLocaleText(
                         {
-                            "zh-Hans": "各规则字数统计：适用简单规则者：",
+                            "zh-Hans": "各规则字数统计：适用简单规则者（无红绿部分者）：",
                         },
                         lang
                     )}
                     {bgrColorCnt[0] + " (" + (bgrColorCnt[3] == 0 ? 0 : (bgrColorCnt[0] / bgrColorCnt[3] * 100).toFixed(3)) + "%) "}
                     {getLocaleText(
                         {
-                            "zh-Hans": "，适用简单+绿色规则者：",
+                            "zh-Hans": "，适用简单+绿色规则者（无红色部分者）：",
                         },
                         lang
                     )}
