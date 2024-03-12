@@ -14,9 +14,9 @@ const simple_mapper_final = new Map([
     ["uai", "aai"],
     ["ueng", "ung"], ["ong", "ung"], ["iong", "ung"],
     ["an", "aan"], ["ian", "in"], ["in", "an"], // 此行先忽略m者
-    ["er", "i"], ["ui", "eoi"], ["uei", "eoi"], ["iao", "iu"],
+    ["er", "i"], ["ui", "eoi"], ["uei", "eoi"], ["iao", "iu"], // ui iu un 兼容完整写法 uei iou uen
     ["ou", "au"], ["iu", "au"], ["iou", "au"],
-    ["en", "an"], ["uen", "eon"], ["yun", "an"],
+    ["en", "an"], ["un", "eon"], ["uen", "eon"], ["yun", "an"],
     ["iang", "oeng"], ["uang", "ong"],
 ]);
 
@@ -31,7 +31,7 @@ export const mancan_options = [
     { label: '阴阳上阴阳去', value: 'yy' },
     // 可以根据需要添加更多选项
     { label: '入声字', value: 'rs' },
-    
+
     // 声母一对多
     { label: 'k➡️f/h', value: 'k-fh' },
     { label: 'h➡️h/w/f', value: 'h-hwf' },
@@ -40,6 +40,17 @@ export const mancan_options = [
 
     // 韵母一对多
     { label: 'e➡️o/e', value: 'e-oe' },
+    { label: 'i（非舌尖ɿʅ）➡️ei/ai/ik', value: 'i-eiaiik' },
+    { label: 'u➡️u/ou/yu/uk', value: 'u-uouyuuk' },
+    { label: 'yu➡️yu/eoi/uk', value: 'yu-n' },
+    { label: 'ai➡️aai/oi', value: 'ai-n' },
+    { label: 'ei➡️ei/ui', value: 'ei-n' },
+    { label: 'ao➡️aau/ou', value: 'ao-n' },
+    { label: 'uan➡️yun/un', value: 'uan-n' },
+    { label: 'yuan➡️yun/un', value: 'yuan-n' },
+    { label: 'ang➡️ong/oeng', value: 'ang-n' },
+    { label: 'eng➡️ang/ing', value: 'eng-n' },
+    { label: 'ing➡️ing/eng', value: 'ing-n' },
 ];
 
 export const mancan_convert = (
@@ -61,6 +72,8 @@ export const mancan_convert = (
     if (my_initial == "" && py[0] == "w" && py.substring(0, 4) !== "weng") my_initial = "w";
     if (my_initial === "g" && py.substring(0, 2) === "gu") my_initial = "gw";
     if (my_initial === "k" && py.substring(0, 2) === "ku") my_initial = "kw";
+    // simple mapping: for er
+    if (py_final === "er" && py_initial == "") my_initial = "j";
 
     // Options
     // 声母一对多
@@ -77,8 +90,41 @@ export const mancan_convert = (
         my_initial = "m/w";
     }
     // 韵母一对多
-    if (selectedOptions.includes('e-oe') && !my_final && py_final === "e") {
-        my_initial = "o/e";
+    if (selectedOptions.includes('e-oe') && py_final === "e") {
+        my_final = "o/e";
+    }
+    if (selectedOptions.includes('i-eiaiik') && py_final === "i" && !["z", "c", "s", "zh", "ch", "sh"].includes(py_initial)) {
+        my_final = "ei/ai/ik";
+    }
+    if (selectedOptions.includes('u-uouyuuk') && py_final === "u") {
+        my_final = "u/ou/yu/uk";
+    }
+    if (selectedOptions.includes('yu-n') && py_final === "yu") {
+        my_final = "yu/eoi/uk";
+    }
+    if (selectedOptions.includes('ai-n') && py_final === "ai") {
+        my_final = "aai/oi";
+    }
+    if (selectedOptions.includes('ei-n') && py_final === "ei") {
+        my_final = "ei/ui";
+    }
+    if (selectedOptions.includes('ao-n') && py_final === "ao") {
+        my_final = "aau/ou";
+    }
+    if (selectedOptions.includes('uan-n') && py_final === "uan") {
+        my_final = "yun/un";
+    }
+    if (selectedOptions.includes('yuan-n') && py_final === "yuan") {
+        my_final = "yun/un";
+    }
+    if (selectedOptions.includes('ang-n') && py_final === "ang") {
+        my_final = "ong/oeng";
+    }
+    if (selectedOptions.includes('eng-n') && py_final === "eng") {
+        my_final = "ang/ing";
+    }
+    if (selectedOptions.includes('ing-n') && py_final === "ing") {
+        my_final = "ing/eng";
     }
 
     // 最基本的逻辑，放最下面

@@ -91,9 +91,12 @@ export default function Home(props: { lang: keyof I18nText }) {
         // 拆解 pinyin
         let py_origin = py;
         py = py.replace(/yi/g, 'i');
-        py = py.replace(/y/g, 'i');
+        py = py.replace(/y(?!u)/g, 'i'); // 匹配y开头者如yan yong you 但不含 yu-
         py = py.replace(/wu/g, 'u');
         py = py.replace(/ü/g, 'yu');
+        py = py.replace(/ju/g, 'jyu');
+        py = py.replace(/qu/g, 'qyu');
+        py = py.replace(/xu/g, 'xyu');
         let py_tone = "0";
         if (!isNaN(parseInt(py.charAt(py.length - 1)))) {
             py_tone = py.charAt(py.length - 1);
@@ -239,8 +242,8 @@ export default function Home(props: { lang: keyof I18nText }) {
                     <DialogTitle>普转粤一对一规则</DialogTitle>
                     <DialogContent>
                         <div>
-                            此处所列规则皆是根据港中文之数据，其普通话发音所对应的各种广州话发音只有唯一一个含「较多」字数者，故称为一对一。  <br/>
-                            此等规则如下：<br/>
+                            此处所列规则皆是根据港中文之数据，其普通话发音所对应的各种广州话发音只有唯一一个含「较多」字数者，故称为一对一。  <br />
+                            此等规则如下：<br />
                             <ul>
                                 <li>声母大多数直接与广州话相同：bpmf dtnl g zcs； </li>
                                 <li>以下翘舌声母也易转换：zh➡️z；ch➡️c；sh➡️s；r➡️j；</li>
@@ -263,7 +266,7 @@ export default function Home(props: { lang: keyof I18nText }) {
             <Typography variant="body1" m={1}>
                 {getLocaleText(
                     {
-                        "zh-Hans": "符合以下复选框中选中的比较通用的规则者，该部分拼音显示为绿色。",
+                        "zh-Hans": "符合以下复选框中选中的比较通用的一对多规则者，该部分拼音显示为绿色。",
                     },
                     lang
                 )}
