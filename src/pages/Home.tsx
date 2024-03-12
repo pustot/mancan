@@ -8,6 +8,9 @@ import {
     Checkbox,
     ClickAwayListener,
     Container,
+    Dialog,
+    DialogContent,
+    DialogTitle,
     FormControlLabel,
     Link as MuiLink,
     TextField,
@@ -177,6 +180,17 @@ export default function Home(props: { lang: keyof I18nText }) {
         setSelectedOptions([]);
     };
 
+    const [dialogueOpen, setDialogueOpen] = React.useState(false);
+
+    const handleDialogueOpen = () => {
+        setDialogueOpen(true);
+    };
+
+    const handleDialogueClose = () => {
+        setDialogueOpen(false);
+    };
+
+
     return (
         <Container maxWidth="md">
             <Typography variant="h3" m={2}>
@@ -217,11 +231,32 @@ export default function Home(props: { lang: keyof I18nText }) {
                     lang
                 )}
             </Typography>
+            <Box mx={2}>
+                <Button onClick={handleDialogueOpen} variant="contained" color="primary">
+                    普转粤一对一规则
+                </Button>
+                <Dialog open={dialogueOpen} onClose={handleDialogueClose}>
+                    <DialogTitle>普转粤一对一规则</DialogTitle>
+                    <DialogContent>
+                        <div>
+                            此处所列规则皆是根据港中文之数据，其普通话发音所对应的各种广州话发音只有唯一一个含「较多」字数者，故称为一对一。  <br/>
+                            此等规则如下：<br/>
+                            <ul>
+                                <li>声母大多数直接与广州话相同：bpmf dtnl g zcs； </li>
+                                <li>以下翘舌声母也易转换：zh➡️z；ch➡️c；sh➡️s；r➡️j；</li>
+                                <li>以下韵母若忽略介音则普广相同：a/ia/ua➡️aa；o/uo➡️o；ie➡️e；uai➡️aai；ueng/ong/iong➡️ung；an➡️aan/aam；</li>
+                                <li>其他一对一韵母：yue➡️入声yut/ok；i（舌尖ɿʅ）➡️i；er➡️i；uei➡️eoi；iao➡️iu；ou/iou➡️au；ian➡️im/in；en➡️an；in➡️an/am；uen➡️eon；yun➡️an；iang➡️oeng；uang➡️ong；</li>
+                            </ul>
+                        </div>
+                    </DialogContent>
+                </Dialog>
+            </Box>
+
             <Typography variant="body1" m={1}>
 
                 <MuiLink href="https://github.com/pustot/PustoNoto/blob/master/400-Lingvo/400-zh-yue-%E7%B2%B5-Kantona.md#%E6%99%AE%E8%BD%89%E7%B2%B5%E8%BD%AC%E6%8D%A2%E8%A7%84%E5%88%99%E4%B8%8E%E4%B8%8D%E8%A7%84%E5%88%99%E6%80%BB%E7%BB%93"
                     target="_blank" rel="noopener noreferrer">
-                    规则说明
+                    更多说明见此笔记
                 </MuiLink>
             </Typography>
 
