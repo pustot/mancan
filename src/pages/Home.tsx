@@ -18,6 +18,7 @@ import { pinyin } from 'pinyin-pro';
 import ToJyutping from "to-jyutping";
 
 import { getLocaleText, I18nText } from "../utils/I18n";
+import { mancan_convert } from "../utils/mancan_convert";
 
 interface Pronunciation {
     hanzi: string;
@@ -35,6 +36,7 @@ interface Pronunciation {
 const Highlight = styled("span")(({ theme }) => ({
     color: theme.palette.error.main,
 }));
+
 
 function mergeArrays(array1: [string, string | null][], array2: string[]): string[][] {
     const mergedArray: string[][] = [];
@@ -54,113 +56,82 @@ function mergeArrays(array1: [string, string | null][], array2: string[]): strin
     return mergedArray;
 }
 
-const simple_mapper_initial = new Map([
-    ["b", "b"], ["p", "p"], ["m", "m"], ["f", "f"],
-    ["d", "d"], ["t", "t"], ["n", "n"], ["l", "l"],
-    ["g", "g"], ["k", "k"], ["h", "h"],
-    ["j", ""], ["q", ""], ["x", ""],
-    ["zh", "z"], ["ch", "c"], ["sh", "s"], ["r", "j"],
-    ["z", "z"], ["c", "c"], ["s", "s"],
-]);
-
-const simple_mapper_final = new Map([
-    ["a", "aa"], ["ia", "aa"], ["ua", "aa"],
-    ["o", "o"], ["uo", "o"], ["ie", "e"],
-    ["uai", "aai"],
-    ["ueng", "ung"], ["ong", "ung"], ["iong", "ung"],
-    ["an", "aan"], ["ian", "in"], ["in", "an"], // 此行先忽略m者
-    ["er", "i"], ["ui", "eoi"], ["uei", "eoi"], ["iao", "iu"],
-    ["ou", "au"], ["iu", "au"], ["iou", "au"],
-    ["en", "an"], ["uen", "eon"], ["yun", "an"],
-    ["iang", "oeng"], ["uang", "ong"],
-]);
-
-const mancan_convert = (py_initial: string,
-    py_final: string,
-    py_tone: number): [string, string, number] => {
-    let my_initial = simple_mapper_initial.get(py_initial) || "";
-    let my_final = simple_mapper_final.get(py_final) || "";
-    let my_tone = 0;
-    if (py_tone == 1) my_tone = 1;
-    else if (py_tone == 2) my_tone = 4;
-    return [my_initial, my_final, my_tone];
-}
-
-const hanjppy_add_my = (hanjppy: string[]): Pronunciation => {
-    let [hanzi, jp, py] = hanjppy;
-
-    // 拆解 jyut ping
-    let jp_tone = 0;
-    if (!isNaN(parseInt(jp.charAt(jp.length - 1)))) {
-        jp_tone = parseInt(jp.charAt(jp.length - 1));
-        jp = jp.slice(0, -1);
-    }
-    let jp_initial = "";
-    let i = 0;
-    while (i < jp.length && !'aeiouy'.includes(jp.charAt(i))) {
-        jp_initial += jp.charAt(i);
-        i++;
-    }
-    let jp_final = jp.slice(i);
-
-    // 拆解 pinyin
-    py = py.replace(/yi/g, 'i');
-    py = py.replace(/y/g, 'i');
-    py = py.replace(/wu/g, 'u');
-    py = py.replace(/ü/g, 'yu');
-    let py_tone = 0;
-    if (!isNaN(parseInt(py.charAt(py.length - 1)))) {
-        py_tone = parseInt(py.charAt(py.length - 1));
-        py = py.slice(0, -1);
-    }
-    let py_initial = "";
-    i = 0;
-    while (i < py.length && !'aeiouy'.includes(py.charAt(i))) {
-        py_initial += py.charAt(i);
-        i++;
-    }
-    let py_final = py.slice(i);
-
-    let [my_initial, my_final, my_tone] = mancan_convert(py_initial, py_final, py_tone);
-
-    return {
-        hanzi: hanzi,
-        jp_initial: jp_initial,
-        jp_final: jp_final,
-        jp_tone: jp_tone,
-        py_initial: py_initial,
-        py_final: py_final,
-        py_tone: py_tone,
-        my_initial: my_initial,
-        my_final: my_final,
-        my_tone: my_tone
-    };
-}
-
-function translateMandarinToCantonese(input: string): Pronunciation[] {
-    let jps = ToJyutping.getJyutpingList(input);
-
-    let pys = pinyin(input, {
-        toneType: 'num',              // 启用多音字模式
-        type: 'array',                // 启用分词，以解决多音字问题。默认不开启，使用 true 开启使用 Intl.Segmenter 分词库。
-    })
-
-    // [[hanzi, jp, py]...]
-    let mergedArray = mergeArrays(jps, pys);
-
-    console.log(jps)
-    console.log(pys)
-    console.log(mergedArray)
-
-    // 模拟转换逻辑，返回示例数据
-    return mergedArray.map(hanjppy_add_my);
-}
-
 export default function Home(props: { lang: keyof I18nText }) {
     const { lang } = props;
 
     const [input, setInput] = React.useState<string>("廣州話");
     const [result, setResult] = React.useState<Pronunciation[]>([]);
+    
+    const hanjppy_add_my = (hanjppy: string[]): Pronunciation => {
+        let [hanzi, jp, py] = hanjppy;
+    
+        // 拆解 jyut ping
+        let jp_tone = 0;
+        if (!isNaN(parseInt(jp.charAt(jp.length - 1)))) {
+            jp_tone = parseInt(jp.charAt(jp.length - 1));
+            jp = jp.slice(0, -1);
+        }
+        let jp_initial = "";
+        let i = 0;
+        while (i < jp.length && !'aeiouy'.includes(jp.charAt(i))) {
+            jp_initial += jp.charAt(i);
+            i++;
+        }
+        let jp_final = jp.slice(i);
+    
+        // 拆解 pinyin
+        let py_origin = py;
+        py = py.replace(/yi/g, 'i');
+        py = py.replace(/y/g, 'i');
+        py = py.replace(/wu/g, 'u');
+        py = py.replace(/ü/g, 'yu');
+        let py_tone = 0;
+        if (!isNaN(parseInt(py.charAt(py.length - 1)))) {
+            py_tone = parseInt(py.charAt(py.length - 1));
+            py = py.slice(0, -1);
+        }
+        let py_initial = "";
+        i = 0;
+        while (i < py.length && !'aeiouy'.includes(py.charAt(i))) {
+            py_initial += py.charAt(i);
+            i++;
+        }
+        let py_final = py.slice(i);
+    
+        let [my_initial, my_final, my_tone] = mancan_convert(py_origin, py_initial, py_final, py_tone);
+    
+        return {
+            hanzi: hanzi,
+            jp_initial: jp_initial,
+            jp_final: jp_final,
+            jp_tone: jp_tone,
+            py_initial: py_initial,
+            py_final: py_final,
+            py_tone: py_tone,
+            my_initial: my_initial,
+            my_final: my_final,
+            my_tone: my_tone
+        };
+    }
+    
+    function translateMandarinToCantonese(input: string): Pronunciation[] {
+        let jps = ToJyutping.getJyutpingList(input);
+    
+        let pys = pinyin(input, {
+            toneType: 'num',              // 启用多音字模式
+            type: 'array',                // 启用分词，以解决多音字问题。默认不开启，使用 true 开启使用 Intl.Segmenter 分词库。
+        })
+    
+        // [[hanzi, jp, py]...]
+        let mergedArray = mergeArrays(jps, pys);
+    
+        console.log(jps)
+        console.log(pys)
+        console.log(mergedArray)
+    
+        // 模拟转换逻辑，返回示例数据
+        return mergedArray.map(hanjppy_add_my);
+    }
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setInput(e.target.value);
