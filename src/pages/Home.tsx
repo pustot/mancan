@@ -57,11 +57,32 @@ function mergeArrays(array1: [string, string | null][], array2: string[]): strin
     return mergedArray;
 }
 
+const simple_mapper_initial = new Map([
+    ["b", "b"], ["p", "p"], ["m", "m"], ["f", "f"],
+    ["d", "d"], ["t", "t"], ["n", "n"], ["l", "l"],
+    ["g", "g"], ["k", "k"], ["h", "h"],
+    ["j", ""], ["q", ""], ["x", ""],
+    ["zh", "z"], ["ch", "c"], ["sh", "s"], ["r", "j"],
+    ["z", "z"], ["c", "c"], ["s", "s"],
+]);
+
+const simple_mapper_final = new Map([
+    ["a", "aa"], ["ia", "aa"], ["ua", "aa"],
+    ["o", "o"], ["uo", "o"], ["ie", "e"],
+    ["uai", "aai"],
+    ["ueng", "ung"], ["ong", "ung"], ["iong", "ung"],
+    ["an", "aan"], ["ian", "in"], ["in", "an"], // 此行先忽略m者
+    ["er", "i"], ["ui", "eoi"], ["uei", "eoi"], ["iao", "iu"],
+    ["ou", "au"], ["iu", "au"], ["iou", "au"],
+    ["en", "an"], ["uen", "eon"], ["yun", "an"],
+    ["iang", "oeng"], ["uang", "ong"],
+]);
+
 const mancan_convert = (py_initial: string,
     py_final: string,
     py_tone: number): [string, string, number] => {
-    let my_initial = py_initial;
-    let my_final = py_final;
+    let my_initial = simple_mapper_initial.get(py_initial) || "";
+    let my_final = simple_mapper_final.get(py_final) || "";
     let my_tone = 0;
     if (py_tone == 1) my_tone = 1;
     else if (py_tone == 2) my_tone = 4;
@@ -185,6 +206,13 @@ export default function Home(props: { lang: keyof I18nText }) {
                     },
                     lang
                 )}
+            </Typography>
+            <Typography variant="body1">
+
+                <MuiLink href="https://github.com/pustot/PustoNoto/blob/master/400-Lingvo/400-zh-yue-%E7%B2%B5-Kantona.md#%E6%99%AE%E8%BD%89%E7%B2%B5%E8%BD%AC%E6%8D%A2%E8%A7%84%E5%88%99%E4%B8%8E%E4%B8%8D%E8%A7%84%E5%88%99%E6%80%BB%E7%BB%93"
+                    target="_blank" rel="noopener noreferrer">
+                    规则说明
+                </MuiLink>
             </Typography>
 
 
