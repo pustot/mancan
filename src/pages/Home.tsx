@@ -2,23 +2,20 @@ import "purecss/build/pure.css";
 import * as React from "react";
 import "../styles.scss";
 
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import Box from "@mui/material/Box";
-import { styled } from "@mui/material/styles";
-
 import {
+    Box,
+    Button,
+    ClickAwayListener,
     Container,
-    Grid,
-    IconButton,
     Link as MuiLink,
-    Stack,
+    TextField,
     Tooltip,
     Typography,
 } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
-import ToJyutping from "to-jyutping";
 import { pinyin } from 'pinyin-pro';
+import ToJyutping from "to-jyutping";
 
 import { getLocaleText, I18nText } from "../utils/I18n";
 
@@ -162,7 +159,7 @@ function translateMandarinToCantonese(input: string): Pronunciation[] {
 export default function Home(props: { lang: keyof I18nText }) {
     const { lang } = props;
 
-    const [input, setInput] = React.useState<string>("");
+    const [input, setInput] = React.useState<string>("廣州話");
     const [result, setResult] = React.useState<Pronunciation[]>([]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -173,6 +170,16 @@ export default function Home(props: { lang: keyof I18nText }) {
         const characters = input;
         const translations = translateMandarinToCantonese(characters);
         setResult(translations);
+    };
+
+    const [openTooltipIndex, setOpenTooltipIndex] = React.useState<number | null>(null);
+
+    const handleTooltipClose = () => {
+        setOpenTooltipIndex(null);
+    };
+
+    const handleTooltipOpen = (index: number) => {
+        setOpenTooltipIndex(openTooltipIndex === index ? null : index);
     };
 
     return (
@@ -217,31 +224,49 @@ export default function Home(props: { lang: keyof I18nText }) {
 
 
             <Box sx={{ '& > :not(style)': { m: 1 } }}>
-                <TextField label="输入汉字" variant="outlined" value={input} onChange={handleInputChange} fullWidth />
+                <TextField label="输入汉字" variant="outlined" value={input}
+                    multiline placeholder="問天地好在。我而家學緊廣州話。"
+                    onChange={handleInputChange} fullWidth />
                 <Button variant="contained" onClick={handleSubmit}>转换</Button>
-                <Box mt={2} sx={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', flexWrap: 'wrap' }}>
-                    {result.map((pronunciation, index) => (
-                        <Tooltip
-                            key={index}
-                            title={
-                                <>
-                                    <Typography>普通话: {pronunciation.py_initial + pronunciation.py_final + pronunciation.py_tone}</Typography>
-                                    <Typography>粤语: {pronunciation.jp_initial + pronunciation.jp_final + pronunciation.jp_tone}</Typography>
-                                </>
-                            }
-                            placement="top"
-                        >
-                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mr: 2 }}>
-                                <Typography sx={{ fontSize: '0.75em', lineHeight: '1' }}>
-                                    {pronunciation.jp_initial !== pronunciation.my_initial ? <Highlight>{pronunciation.jp_initial}</Highlight> : pronunciation.jp_initial}
-                                    {pronunciation.jp_final !== pronunciation.my_final ? <Highlight>{pronunciation.jp_final}</Highlight> : pronunciation.jp_final}
-                                    {pronunciation.jp_tone !== pronunciation.my_tone ? <Highlight>{pronunciation.jp_tone}</Highlight> : pronunciation.jp_tone}
-                                </Typography>
-                                <Typography sx={{ lineHeight: '1.5' }}>{pronunciation.hanzi}</Typography>
-                            </Box>
-                        </Tooltip>
-                    ))}
-                </Box>
+
+                <ClickAwayListener onClickAway={handleTooltipClose}>
+                    <Box mt={2} sx={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                        {result.map((pronunciation, index) => (
+                            <Tooltip
+                                key={index}
+                                PopperProps={{
+                                    disablePortal: true,
+                                }}
+                                onClose={handleTooltipClose}
+                                open={openTooltipIndex === index}
+                                disableFocusListener
+                                disableHoverListener
+                                disableTouchListener
+                                title={
+                                    <>
+                                        <Typography>普通话: {pronunciation.py_initial + pronunciation.py_final + pronunciation.py_tone}</Typography>
+                                        <Typography>粤语: {pronunciation.jp_initial + pronunciation.jp_final + pronunciation.jp_tone}</Typography>
+                                    </>
+                                }
+                            >
+                                <Box sx={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', mr: 2 }}
+                                    onMouseEnter={() => handleTooltipOpen(index)}
+                                    onMouseLeave={handleTooltipClose}
+                                    onClick={() => handleTooltipOpen(index)}
+                                >
+                                    <Typography sx={{ fontSize: '0.75em', lineHeight: '1' }}>
+                                        {pronunciation.jp_initial !== pronunciation.my_initial ? <Highlight>{pronunciation.jp_initial}</Highlight> : pronunciation.jp_initial}
+                                        {pronunciation.jp_final !== pronunciation.my_final ? <Highlight>{pronunciation.jp_final}</Highlight> : pronunciation.jp_final}
+                                        {pronunciation.jp_tone !== pronunciation.my_tone ? <Highlight>{pronunciation.jp_tone}</Highlight> : pronunciation.jp_tone}
+                                    </Typography>
+                                    <Typography sx={{ lineHeight: '1.5' }}>{pronunciation.hanzi}</Typography>
+                                </Box>
+                            </Tooltip>
+                        ))}
+                    </Box>
+                </ClickAwayListener>
+
+
             </Box>
 
 
