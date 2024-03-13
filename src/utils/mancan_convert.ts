@@ -46,7 +46,7 @@ export const mancan_options = [
     { label: 'yu➡️yu/eoi/uk', value: 'yu-n' },
     { label: 'ai➡️aai/oi（泰咍）', value: 'ai-n' },
     { label: 'ei➡️ei/ui', value: 'ei-n' },
-    { label: 'ao➡️aau/ou', value: 'ao-n' },
+    { label: 'ao➡️aau/ou（豪肴）', value: 'ao-n' },
     { label: 'uan➡️yun/un', value: 'uan-n' },
     { label: 'uan➡️yun/un/aan（关官）', value: 'uan-n-aan' },
     { label: 'yuan➡️yun/un', value: 'yuan-n' },

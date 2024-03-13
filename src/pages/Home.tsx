@@ -23,6 +23,11 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { SelectChangeEvent } from '@mui/material/Select';
+import SendIcon from "@mui/icons-material/Send";
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 
 import { pinyin } from 'pinyin-pro';
 import ToJyutping from "to-jyutping";
@@ -293,6 +298,7 @@ export default function Home(props: { lang: keyof I18nText }) {
     }
 
     const [selectedReplaceOption, setSelectedReplaceOption] = React.useState("");
+    const [expanded, setExpanded] = React.useState(false);
 
     return (
         <Container maxWidth="md">
@@ -373,21 +379,51 @@ export default function Home(props: { lang: keyof I18nText }) {
 
             {/* 显示选项 */}
             <Box m={2}>
-                {mancan_options.map((option) => (
-                    <FormControlLabel
-                        key={option.value}
-                        control={
-                            <Checkbox
-                                checked={selectedOptions.includes(option.value)}
-                                onChange={() => handleOptionChange(option.value)}
-                            />
-                        }
-                        label={option.label}
-                    />
-                ))}
+                {expanded
+                    ? mancan_options.map((option) => (
+                        <FormControlLabel
+                            key={option.value}
+                            control={
+                                <Checkbox
+                                    checked={selectedOptions.includes(option.value)}
+                                    onChange={() => handleOptionChange(option.value)}
+                                />
+                            }
+                            label={option.label}
+                        />
+                    ))
+                    : mancan_options.slice(0, 3).map((option) => (
+                        <FormControlLabel
+                            key={option.value}
+                            control={
+                                <Checkbox
+                                    checked={selectedOptions.includes(option.value)}
+                                    onChange={() => handleOptionChange(option.value)}
+                                />
+                            }
+                            label={option.label}
+                        />
+                    ))}
+                {mancan_options.length > 3 && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', mb: 1 }}>
+                        {expanded ? (
+                            <Button variant="text" onClick={() => setExpanded(false)}>
+                                隐藏 <ExpandLessIcon fontSize="small" />
+                            </Button>
+                        ) : (
+                            <Button variant="text" onClick={() => setExpanded(true)}>
+                                ...展开 <ExpandMoreIcon fontSize="small" />
+                            </Button>
+                        )}
+                    </Box>
+                )}
                 <Box sx={{ '& > :not(style)': { m: 1 } }}>
-                    <Button variant="contained" onClick={handleSelectAll} sx={{ mr: 2 }}>全选</Button>
-                    <Button variant="contained" onClick={handleDeselectAll}>全不选</Button>
+                    <Button variant="contained" onClick={handleSelectAll} sx={{ mr: 2 }}>
+                        全选
+                    </Button>
+                    <Button variant="contained" onClick={handleDeselectAll}>
+                        全不选
+                    </Button>
                 </Box>
             </Box>
 
@@ -400,8 +436,8 @@ export default function Home(props: { lang: keyof I18nText }) {
                 )}
             </Typography>
 
-
             <Box sx={{ '& > :not(style)': { m: 1 } }}>
+                {/* To Replace with Default Texts */}
                 <Box sx={{ '& > :not(style)': { m: 1 } }}>
                     <FormControl variant="outlined" sx={{ minWidth: 200 }}>
                         <InputLabel id="select-label">选择预设文本</InputLabel>
@@ -419,27 +455,60 @@ export default function Home(props: { lang: keyof I18nText }) {
                             {/* Add more menu items as needed */}
                         </Select>
                     </FormControl>
-                    <Button variant="contained" onClick={handleReplace}>
+                    <Button variant="contained" onClick={handleReplace} startIcon={<CloudDownloadIcon />}>
                         替换
                     </Button>
-                    <Button variant="contained" onClick={handleSubmit}>
+                    <Button variant="contained" onClick={handleSubmit} startIcon={<SendIcon />}>
                         转粤
                     </Button>
-                    <Button variant="contained" onClick={handleInputClear}>
+                    <Button variant="contained" onClick={handleInputClear} startIcon={<DeleteForeverIcon />}>
                         清除文本
                     </Button>
                 </Box>
 
+                {/* Input */}
                 <TextField label="输入汉字" variant="outlined" value={input}
                     multiline placeholder="問天地好在。我而家學緊廣州話。"
+                    maxRows={12}
                     onChange={handleInputChange} fullWidth />
-                <Button variant="contained" onClick={handleSubmit}>
+
+                <Button variant="contained" onClick={handleSubmit} startIcon={<SendIcon />}>
                     转换
                 </Button>
-                <Button variant="contained" onClick={handleInputClear}>
+                <Button variant="contained" onClick={handleInputClear} startIcon={<DeleteForeverIcon />}>
                     清除文本
                 </Button>
 
+                {/* Statistics */}
+                <Typography variant="body1" m={1}>
+                    {getLocaleText(
+                        {
+                            "zh-Hans": "各规则字数统计：适用简单规则者（无红绿部分者）：",
+                        },
+                        lang
+                    )}
+                    {bgrColorCnt[0] + " (" + (bgrColorCnt[3] == 0 ? 0 : (bgrColorCnt[0] / bgrColorCnt[3] * 100).toFixed(1)) + "%) "}
+                    {getLocaleText(
+                        {
+                            "zh-Hans": "，适用简单+绿色规则者（无红色部分者）：",
+                        },
+                        lang
+                    )}
+                    <GreenHighlight>
+                        {bgrColorCnt[0] + bgrColorCnt[1] + " (" + (bgrColorCnt[3] == 0 ? 0 : ((bgrColorCnt[0] + bgrColorCnt[1]) / bgrColorCnt[3] * 100).toFixed(1)) + "%) "}
+                    </GreenHighlight>
+                    {getLocaleText(
+                        {
+                            "zh-Hans": "，不适用以上规则者（有红色部分者）：",
+                        },
+                        lang
+                    )}
+                    <Highlight>
+                        {bgrColorCnt[2] + " (" + (bgrColorCnt[3] == 0 ? 0 : ((bgrColorCnt[2]) / bgrColorCnt[3] * 100).toFixed(1)) + "%) "}
+                    </Highlight>
+                </Typography>
+
+                {/* Display the Result */}
                 <ClickAwayListener onClickAway={handleTooltipClose}>
                     <Box mt={2} sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
                         {result.map((pronunciation, index) => (
@@ -495,35 +564,6 @@ export default function Home(props: { lang: keyof I18nText }) {
                         ))}
                     </Box>
                 </ClickAwayListener>
-
-                <Typography variant="body1" m={1}>
-                    {getLocaleText(
-                        {
-                            "zh-Hans": "各规则字数统计：适用简单规则者（无红绿部分者）：",
-                        },
-                        lang
-                    )}
-                    {bgrColorCnt[0] + " (" + (bgrColorCnt[3] == 0 ? 0 : (bgrColorCnt[0] / bgrColorCnt[3] * 100).toFixed(3)) + "%) "}
-                    {getLocaleText(
-                        {
-                            "zh-Hans": "，适用简单+绿色规则者（无红色部分者）：",
-                        },
-                        lang
-                    )}
-                    <GreenHighlight>
-                        {bgrColorCnt[0] + bgrColorCnt[1] + " (" + (bgrColorCnt[3] == 0 ? 0 : ((bgrColorCnt[0] + bgrColorCnt[1]) / bgrColorCnt[3] * 100).toFixed(3)) + "%) "}
-                    </GreenHighlight>
-                    {getLocaleText(
-                        {
-                            "zh-Hans": "，不适用以上规则者（有红色部分者）：",
-                        },
-                        lang
-                    )}
-                    <Highlight>
-                        {bgrColorCnt[2] + " (" + (bgrColorCnt[3] == 0 ? 0 : ((bgrColorCnt[2]) / bgrColorCnt[3] * 100).toFixed(3)) + "%) "}
-                    </Highlight>
-                </Typography>
-
 
             </Box>
 
