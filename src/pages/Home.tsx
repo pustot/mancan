@@ -308,7 +308,7 @@ export default function Home(props: { lang: keyof I18nText }) {
                         "zh-Hans": "普通粤",
                         "zh-Hant": "普通粵",
                         en: "Mancan",
-                        ja: "Mancan",
+                        ja: "マンカン",
                         de: "Mancan",
                         ko: "Mancan",
                         "ko-Han": "Mancan",
@@ -327,7 +327,11 @@ export default function Home(props: { lang: keyof I18nText }) {
             <Typography variant="body1" m={1}>
                 {getLocaleText(
                     {
-                        "zh-Hans": "使用通用而简单的推导规则，直接用普通话读音推到广州话读音，并标出所有不合此规则之要素。",
+                        "zh-Hans": "使用通用而简单的推导规则，直接用普通话读音推导广州话读音，并标出所有不合此规则之要素。",
+                        "zh-Hant": "使用通用而簡單嘅推導規則，直接用普通話讀音推導廣州話讀音，並標出所有唔合此規則之要素",
+                        "en": "Using a general and simple derivation rule, we derive the Cantonese pronunciation directly from the Mandarin pronunciation, and mark all elements that do not comply with this rule.",
+                        "de": "Unter Verwendung einer allgemeinen und einfachen Ableitungsregel leiten wir die kantonesische Aussprache direkt von der Mandarin-Aussprache ab und markieren wir alle Elemente, die nicht mit dieser Regel übereinstimmen.",
+                        "ja": "一般的で簡単な導出規則を使用して、広東語の発音を普通話の発音から直接導き出し、この規則に準拠しないすべての要素をマークします。",
                     },
                     lang
                 )}
