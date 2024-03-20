@@ -265,6 +265,16 @@ export default function Home(props: { lang: keyof I18nText }) {
             case '3500':
                 setInput(hansPhonOrdered3500);
                 break;
+            case 'hkcommon':
+                    fetch('https://raw.githubusercontent.com/nk2028/commonly-used-chinese-characters-and-words/main/char.txt')
+                        .then(response => response.text())
+                        .then(data => {
+                            setInput(data.replaceAll("\n", " "));
+                        })
+                        .catch(error => {
+                            console.error('Error fetching text:', error);
+                        });
+                    break;
             case 'qianziwen':
                 fetch('https://pustot.github.io/public/corpus/Qianziwen.txt')
                     .then(response => response.text())
@@ -452,6 +462,7 @@ export default function Home(props: { lang: keyof I18nText }) {
                             label="选择替换内容"
                         >
                             {/* <MenuItem value="">请选择</MenuItem> */}
+                            <MenuItem value="hkcommon">替换为香港《教師語文能力評核（普通話）參照使用常用字表》</MenuItem>
                             <MenuItem value="2500">替换为2500常用字（笔画序）</MenuItem>
                             <MenuItem value="3500">替换为3500常用字（拼音序）</MenuItem>
                             <MenuItem value="qianziwen">替换为千字文</MenuItem>
